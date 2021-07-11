@@ -6,12 +6,12 @@
   "browser": "dist/browser/did-siop.js",
   "types": "dist/types/index.d.ts",
   "scripts": {
-    "node-build": "tsc --declarationDir ./dist/types",
+    "node-build": "rm -rf ./dist/node ./dist/types && tsc --declarationDir ./dist/types",
     "compile": "babel dist/browser/did-siop.js --out-file dist/browser/did-siop.compiled.js --presets=@babel/preset-env",
     "minify": "uglifyjs --compress --mangle --output dist/browser/did-siop.min.js -- dist/browser/did-siop.compiled.js",
     "browser-build": "browserify src/index.ts -p [ tsify tsconfig.json ] --s DID_SIOP > dist/browser/did-siop.js && npm run-script compile && npm run-script minify",
     "test": "jest",
-    "publish-version": "npm run-script node-build && npm run-script browser-build && npm publish"
+    "build:all": "npm run-script node-build && npm run-script browser-build"
   },
   "repository": {
     "type": "git",
@@ -55,13 +55,13 @@
   },
   "dependencies": {
     "@babel/polyfill": "^7.8.7",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "base64url": "^3.0.1",
     "bs58": "^4.0.1",
     "ed2curve": "^0.3.0",
     "elliptic": "^6.5.2",
-    "ethereum-checksum-address": "0.0.5",
-    "ethereum-public-key-to-address": "0.0.2",
+    "ethereum-checksum-address": "^0.0.6",
+    "ethereum-public-key-to-address": "^0.0.5",
     "ethr-did-resolver": "^2.3.2",
     "multibase": "^3.0.0",
     "multicodec": "^2.0.0",

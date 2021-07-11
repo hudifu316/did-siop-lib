@@ -1,4 +1,23 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -35,17 +54,11 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.DidSiopResponse = void 0;
 var globals_1 = require("./globals");
 var JWT = __importStar(require("./JWT"));
 var Identity_1 = require("./Identity");
@@ -66,9 +79,25 @@ var ERRORS = Object.freeze({
     INVALID_JWK_THUMBPRINT: 'Invalid sub (sub_jwk thumbprint)',
     INVALID_SIGNATURE_ERROR: 'Invalid signature error',
 });
+/**
+ * @classdesc This class contains static methods related to DID SIOP response generation and validation
+ */
 var DidSiopResponse = /** @class */ (function () {
     function DidSiopResponse() {
     }
+    /**
+     * @param {any} requestPayload - Payload of the request JWT. Some information from this object is needed in constructing the response
+     * @param {JWT.SigningInfo} signingInfo - Key information used to sign the response JWT
+     * @param {Identity} didSiopUser - Used to retrieve the information about the provider (user DID) which are included in the response
+     * @param {number} [expiresIn = 1000] - Amount of time under which generated id_token (response) is valid. The party which validate the
+     * response can either consider this value or ignore it
+     * @returns {Promise<string>} - A promise which resolves to a response (id_token) (JWT)
+     * @remarks This method first checks if given SigningInfo is compatible with the algorithm required by the RP in
+     * 'requestPayload.registration.id_token_signed_response_alg' field.
+     * Then it proceeds to extract provider's (user) public key from 'didSiopUser' param using 'kid' field in 'signingInfo' param.
+     * Finally it will create the response JWT (id_token) with relevant information, sign it using 'signingInfo' and return it.
+     * https://identity.foundation/did-siop/#generate-siop-response
+     */
     DidSiopResponse.generateResponse = function (requestPayload, signingInfo, didSiopUser, expiresIn) {
         if (expiresIn === void 0) { expiresIn = 1000; }
         return __awaiter(this, void 0, void 0, function () {
@@ -153,6 +182,22 @@ var DidSiopResponse = /** @class */ (function () {
             });
         });
     };
+    /**
+     *
+     * @param {string} response - A DID SIOP response which needs to be validated
+     * @param {CheckParams} checkParams - Specific field values in the JWT which needs to be validated
+     * @returns {Promise<JWT.JWTObject | ErrorResponse.SIOPErrorResponse>} - A promise wich will resolve either to a decoded id_token (JWT)
+     * or an error response
+     * @remarks This method first decodes the response JWT.
+     * Then checks if it is an error response and if so, returns it.
+     * Else it will proceed to validate the JWT (id_token).
+     * Fields in the JWT header and payload will be checked for availability.
+     * Then the id_token will be validated against 'checkParams'.
+     * Then the signature of the id_token is verified using public key information derived from
+     * the 'kid' field in the header and 'did' field in the payload.
+     * If the verification is successful, this method returns the decoded id_token (JWT).
+     * https://identity.foundation/did-siop/#siop-response-validation
+     */
     DidSiopResponse.validateResponse = function (response, checkParams) {
         return __awaiter(this, void 0, void 0, function () {
             var decodedHeader, decodedPayload, errorResponse, jwkThumbprint, publicKeyInfo, identity, didPubKey, err_1, validity;

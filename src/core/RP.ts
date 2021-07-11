@@ -24,7 +24,6 @@ export class RP {
     private info: RPInfo;
     private identity: Identity = new Identity();
     private signing_info_set: SigningInfo[] = [];
-
     /**
      * @private
      * @constructor 
@@ -88,7 +87,6 @@ export class RP {
             if(kid){}
 
             let didPublicKeySet = this.identity.extractAuthenticationKeys();
-
             for(let didPublicKey of didPublicKeySet){
                 let publicKeyInfo: KeyInputs.KeyInfo = {
                     key: didPublicKey.publicKey,
@@ -101,7 +99,6 @@ export class RP {
                 }
     
                 for(let key_format in KEY_FORMATS){
-
                     let privateKeyInfo: KeyInputs.KeyInfo = {
                         key: key,
                         kid: didPublicKey.id,
@@ -151,7 +148,7 @@ export class RP {
                             continue;
                         }
                     }
-        
+
                     if(checkKeyPair(privateKey, publicKey, signer, verifier, didPublicKey.alg)){
                         this.signing_info_set.push({
                             alg: didPublicKey.alg,
@@ -163,6 +160,7 @@ export class RP {
                     }
                    }
                    catch(err){
+                       console.log('error: '+ err)
                        continue;
                    }
                 }

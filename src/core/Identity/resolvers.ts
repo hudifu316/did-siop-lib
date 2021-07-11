@@ -173,7 +173,7 @@ class KeyDidResolver extends DidResolver{
 class UniversalDidResolver extends DidResolver{
     async resolveDidDocumet(did: string): Promise<DidDocument>{
         let returned = await axios.get('https://dev.uniresolver.io/1.0/identifiers/' + did);
-        return returned.data.didDocument;
+        return returned.data;
     }
 
     /**

@@ -1,8 +1,8 @@
-import { createHash } from 'crypto';
-import { eddsa as EdDSA, ec as EC} from 'elliptic';
+import {createHash} from 'crypto';
+import {ec as EC, eddsa as EdDSA} from 'elliptic';
 import * as base58 from 'bs58';
 import base64url from 'base64url';
-import { KEY_FORMATS, KTYS } from './globals';
+import {KEY_FORMATS, KTYS} from './globals';
 const NodeRSA = require('node-rsa');
 const axios = require('axios').default;
 
@@ -389,6 +389,7 @@ export class RSAKey extends Key{
             case KEY_FORMATS.BASE58:
             case KEY_FORMATS.BASE64:
             case KEY_FORMATS.BASE64URL:
+            case KEY_FORMATS.JWK:
             default: throw new Error(ERRORS.INVALID_KEY_FORMAT);
         }
     }
@@ -694,6 +695,7 @@ export class OKP extends Key{
                     case KEY_FORMATS.BASE58: key_buffer = base58.decode(keyInput.key); break;
                     case KEY_FORMATS.BASE64: key_buffer = base64url.toBuffer(base64url.fromBase64(keyInput.key)); break;
                     case KEY_FORMATS.HEX: key_buffer = Buffer.from(keyInput.key, 'hex'); break;
+                    case KEY_FORMATS.JWK:
                     default: throw new Error(ERRORS.INVALID_KEY_FORMAT);
                 }
             } catch (err) {

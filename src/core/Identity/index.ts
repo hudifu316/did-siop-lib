@@ -76,11 +76,13 @@ export class Identity{
         if(!this.isResolved()) throw new Error(ERRORS.UNRESOLVED_DOCUMENT);
         if(this.keySet.length === 0){
             for (let method of this.doc.authentication) {
+                console.log('Successful get authentication: '+ JSON.stringify(method))
                 if (method.id && method.type) {
                     try{
                         this.keySet.push(extractor.extract(method));
                     }
                     catch(err){
+                        console.log('method extractor error!')
                         continue;
                     }
                 }
@@ -88,11 +90,12 @@ export class Identity{
                 if (method.publicKey) {
                     if(typeof method.publicKey === 'string'){
                         for(let pub of this.doc.publicKey){
-                            if (pub.id === method.publicKey || pub.id === this.doc.id + method.publicKey){
+                            if (pub.publicKeyHex === method.publicKey || pub.id === this.doc.id + method.publicKey){
                                 try{
                                     this.keySet.push(extractor.extract(pub));
                                 }
                                 catch(err){
+                                    console.log('string pub key extractor error!')
                                     continue;
                                 }
                             }
@@ -101,11 +104,12 @@ export class Identity{
                     else{
                         for (let key of method.publicKey) {
                             for(let pub of this.doc.publicKey){
-                                if (pub.id === key || pub.id === this.doc.id + key){
+                                if (pub.publicKeyHex === key || pub.id === this.doc.id + key){
                                     try{
                                         this.keySet.push(extractor.extract(pub));
                                     }
                                     catch(err){
+                                        console.log('binary pub key extractor error!')
                                         continue;
                                     }
                                 }
@@ -146,6 +150,7 @@ export class Identity{
      * @remarks Can be used to set the doc property manually without resolving.
      */
     setDocument(doc: DidDocument, did: string){
+        console.log("setDocument:"+did);
         if (
             //doc['@context'] === 'https://w3id.org/did/v1' &&
             doc.id == did &&

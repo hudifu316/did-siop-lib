@@ -118,6 +118,11 @@ export class ECVerifier extends Verifier{
                     ec = new EC('secp256k1'); 
                     break;
                 }
+                case ALGORITHMS['ES256K-R']: {
+                    sha = createHash('sha256');
+                    ec = new EC('secp256k1');
+                    break;
+                }
                 case ALGORITHMS.EdDSA: {
                     sha = createHash('sha256'); 
                     ec = new EC('ed25519'); 
