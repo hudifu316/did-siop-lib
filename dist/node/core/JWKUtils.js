@@ -406,7 +406,7 @@ var ECKey = /** @class */ (function (_super) {
      * @remarks This static method creates and returns an ECKey object which has only the public information
      */
     ECKey.fromPublicKey = function (keyInput) {
-        if ('key' in keyInput) {
+        if ('key' in keyInput && keyInput.format !== globals_1.KEY_FORMATS.JWK) {
             var key_buffer = Buffer.alloc(1);
             try {
                 switch (keyInput.format) {
@@ -433,7 +433,9 @@ var ECKey = /** @class */ (function (_super) {
             return new ECKey(keyInput.kid, globals_1.KTYS.EC, 'secp256k1', x, y, keyInput.use, keyInput.alg);
         }
         else {
-            return new ECKey(keyInput.kid, globals_1.KTYS.EC, keyInput.crv, keyInput.x, keyInput.y, keyInput.use, keyInput.alg);
+            var keyInfo = keyInput;
+            var key = JSON.parse(JSON.stringify(keyInfo.key));
+            return new ECKey(key.kid, globals_1.KTYS.EC, key.crv, key.x, key.y, key.use, key.alg);
         }
     };
     /**
@@ -444,6 +446,14 @@ var ECKey = /** @class */ (function (_super) {
      */
     ECKey.fromPrivateKey = function (keyInput) {
         if ('key' in keyInput) {
+            if (keyInput.format === globals_1.KEY_FORMATS.JWK) {
+                var keyInfo = keyInput;
+                var key = JSON.parse(keyInfo.key);
+                var ecKey_1 = new ECKey(key.kid, globals_1.KTYS.EC, key.crv, key.x, key.y, key.use, key.alg);
+                ecKey_1.private = true;
+                ecKey_1.d = key.d;
+                return ecKey_1;
+            }
             var key_buffer = Buffer.alloc(1);
             try {
                 switch (keyInput.format) {

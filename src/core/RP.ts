@@ -1,13 +1,13 @@
-import { DidSiopResponse, CheckParams } from './Response';
-import { RPInfo, DidSiopRequest } from './Request';
-import { SigningInfo, JWTObject } from './JWT';
-import { DidDocument, Identity } from './Identity';
-import { KEY_FORMATS, ALGORITHMS, KTYS } from './globals';
-import { KeyInputs, Key, RSAKey, ECKey, OKP } from './JWKUtils';
-import { RSASigner, ES256KRecoverableSigner, ECSigner, OKPSigner } from './Signers';
-import { RSAVerifier, ES256KRecoverableVerifier, ECVerifier, OKPVerifier } from './Verifiers';
-import { checkKeyPair } from './Utils';
-import { SIOPErrorResponse } from './ErrorResponse';
+import {CheckParams, DidSiopResponse} from './Response';
+import {DidSiopRequest, RPInfo} from './Request';
+import {JWTObject, SigningInfo} from './JWT';
+import {DidDocument, Identity} from './Identity';
+import {ALGORITHMS, KEY_FORMATS, KTYS} from './globals';
+import {ECKey, Key, KeyInputs, OKP, RSAKey} from './JWKUtils';
+import {ECSigner, ES256KRecoverableSigner, OKPSigner, RSASigner} from './Signers';
+import {ECVerifier, ES256KRecoverableVerifier, OKPVerifier, RSAVerifier} from './Verifiers';
+import {checkKeyPair} from './Utils';
+import {SIOPErrorResponse} from './ErrorResponse';
 
 export const ERRORS= Object.freeze({
     NO_SIGNING_INFO: 'At least one public key must be confirmed with related private key',
@@ -99,19 +99,24 @@ export class RP {
                 }
     
                 for(let key_format in KEY_FORMATS){
-                    let privateKeyInfo: KeyInputs.KeyInfo = {
-                        key: key,
-                        kid: didPublicKey.id,
-                        use: 'sig',
-                        kty: KTYS[didPublicKey.kty],
-                        alg: ALGORITHMS[didPublicKey.alg],
-                        format: KEY_FORMATS[key_format as keyof typeof KEY_FORMATS],
-                        isPrivate: true
-                    }
-        
+                    let privateKeyInfo:KeyInputs.KeyInfo;
                     let privateKey: Key;
                     let publicKey: Key | string;
                     let signer, verifier;
+                    if(KEY_FORMATS[key_format as keyof typeof KEY_FORMATS] === KEY_FORMATS.JWK){
+                        privateKeyInfo = JSON.parse(key);
+                    } else {
+                        privateKeyInfo = {
+                            key: key,
+                            kid: didPublicKey.id,
+                            use: 'sig',
+                            kty: KTYS[didPublicKey.kty],
+                            alg: ALGORITHMS[didPublicKey.alg],
+                            format: KEY_FORMATS[key_format as keyof typeof KEY_FORMATS],
+                            isPrivate: true
+                        }
+
+                    }
         
                    try{
                     switch(didPublicKey.kty){

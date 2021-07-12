@@ -37,7 +37,8 @@ export class Identity{
         catch(err){
             throw new Error(ERRORS.DOCUMENT_RESOLUTION_ERROR);
         }
-
+        result = result.didDocument;
+        console.log(result);
         if(
             result &&
             //result.data.didDocument['@context'] === 'https://w3id.org/did/v1' &&
@@ -75,7 +76,7 @@ export class Identity{
         if(!extractor) extractor = uniExtractor;
         if(!this.isResolved()) throw new Error(ERRORS.UNRESOLVED_DOCUMENT);
         if(this.keySet.length === 0){
-            for (let method of this.doc.authentication) {
+            for (let method of this.doc.verificationMethod) {
                 console.log('Successful get authentication: '+ JSON.stringify(method))
                 if (method.id && method.type) {
                     try{

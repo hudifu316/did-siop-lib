@@ -140,18 +140,24 @@ var RP = /** @class */ (function () {
                     isPrivate: false
                 };
                 for (var key_format in globals_1.KEY_FORMATS) {
-                    var privateKeyInfo = {
-                        key: key,
-                        kid: didPublicKey.id,
-                        use: 'sig',
-                        kty: globals_1.KTYS[didPublicKey.kty],
-                        alg: globals_1.ALGORITHMS[didPublicKey.alg],
-                        format: globals_1.KEY_FORMATS[key_format],
-                        isPrivate: true
-                    };
+                    var privateKeyInfo = void 0;
                     var privateKey = void 0;
                     var publicKey = void 0;
                     var signer = void 0, verifier = void 0;
+                    if (globals_1.KEY_FORMATS[key_format] === globals_1.KEY_FORMATS.JWK) {
+                        privateKeyInfo = JSON.parse(key);
+                    }
+                    else {
+                        privateKeyInfo = {
+                            key: key,
+                            kid: didPublicKey.id,
+                            use: 'sig',
+                            kty: globals_1.KTYS[didPublicKey.kty],
+                            alg: globals_1.ALGORITHMS[didPublicKey.alg],
+                            format: globals_1.KEY_FORMATS[key_format],
+                            isPrivate: true
+                        };
+                    }
                     try {
                         switch (didPublicKey.kty) {
                             case globals_1.KTYS.RSA:

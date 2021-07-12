@@ -3,6 +3,8 @@ import {ec as EC, eddsa as EdDSA} from 'elliptic';
 import * as base58 from 'bs58';
 import base64url from 'base64url';
 import {KEY_FORMATS, KTYS} from './globals';
+
+
 const NodeRSA = require('node-rsa');
 const axios = require('axios').default;
 
@@ -462,7 +464,7 @@ export class ECKey extends Key{
      * @remarks This static method creates and returns an ECKey object which has only the public information
      */
     static fromPublicKey(keyInput: KeyInputs.ECPublicKeyInput): ECKey{
-        if('key' in keyInput){
+        if('key' in keyInput && keyInput.format!==KEY_FORMATS.JWK){
             let key_buffer = Buffer.alloc(1);
             try {
                 switch (keyInput.format) {
@@ -482,8 +484,10 @@ export class ECKey extends Key{
             let y = base64url.encode(ellipticKey.getPublic().getY().toArrayLike(Buffer));
             return new ECKey(keyInput.kid, KTYS.EC, 'secp256k1', x, y, keyInput.use, keyInput.alg);
         }
-        else{
-            return new ECKey(keyInput.kid, KTYS.EC, keyInput.crv, keyInput.x, keyInput.y, keyInput.use, keyInput.alg);
+        else {
+            let keyInfo:KeyInputs.KeyInfo = keyInput as KeyInputs.KeyInfo;
+            let key = JSON.parse(JSON.stringify(keyInfo.key));
+            return new ECKey(key.kid, KTYS.EC, key.crv, key.x, key.y, key.use, key.alg);
         }
     }
 
@@ -495,6 +499,15 @@ export class ECKey extends Key{
      */
     static fromPrivateKey(keyInput: KeyInputs.ECPrivateKeyInput): ECKey{
         if ('key' in keyInput) {
+            if(keyInput.format===KEY_FORMATS.JWK){
+                let keyInfo:KeyInputs.KeyInfo = keyInput as KeyInputs.KeyInfo;
+                let key = JSON.parse(keyInfo.key);
+                let ecKey = new ECKey(key.kid, KTYS.EC, key.crv, key.x, key.y, key.use, key.alg);
+                ecKey.private = true;
+                ecKey.d = key.d;
+                return ecKey;
+            }
+
             let key_buffer = Buffer.alloc(1);
             try {
                 switch (keyInput.format) {
@@ -516,8 +529,7 @@ export class ECKey extends Key{
             ecKey.d = base64url.encode(ellipticKey.getPrivate().toArrayLike(Buffer));
             ecKey.private = true;
             return ecKey;
-        }
-        else {
+        } else {
             let ecKey = new ECKey(keyInput.kid, KTYS.EC, keyInput.crv, keyInput.x, keyInput.y, keyInput.use, keyInput.alg);
             ecKey.private = true;
             ecKey.d = keyInput.d;

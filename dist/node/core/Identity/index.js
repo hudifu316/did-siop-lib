@@ -78,6 +78,8 @@ var Identity = /** @class */ (function () {
                         err_1 = _a.sent();
                         throw new Error(commons_1.ERRORS.DOCUMENT_RESOLUTION_ERROR);
                     case 3:
+                        result = result.didDocument;
+                        console.log(result);
                         if (result &&
                             //result.data.didDocument['@context'] === 'https://w3id.org/did/v1' &&
                             result.id == did &&
@@ -116,7 +118,7 @@ var Identity = /** @class */ (function () {
         if (!this.isResolved())
             throw new Error(commons_1.ERRORS.UNRESOLVED_DOCUMENT);
         if (this.keySet.length === 0) {
-            for (var _i = 0, _a = this.doc.authentication; _i < _a.length; _i++) {
+            for (var _i = 0, _a = this.doc.verificationMethod; _i < _a.length; _i++) {
                 var method = _a[_i];
                 console.log('Successful get authentication: ' + JSON.stringify(method));
                 if (method.id && method.type) {

@@ -33077,14 +33077,14 @@ module.exports={
   "_args": [
     [
       "elliptic@6.5.4",
-      "/Users/cosa/github/did-siop-lib"
+      "/Users/cosa/github/did-siop-rp-web-min"
     ]
   ],
   "_from": "elliptic@6.5.4",
   "_id": "elliptic@6.5.4",
   "_inBundle": false,
   "_integrity": "sha512-iLhC6ULemrljPZb+QutR5TQGB+pdW6KGD5RSegS+8sorOZT+rdQFbsQFJgvN3eRqNALqJer4oQ16YvJHlU8hzQ==",
-  "_location": "/elliptic",
+  "_location": "/did-siop/elliptic",
   "_phantomChildren": {},
   "_requested": {
     "type": "version",
@@ -33097,15 +33097,15 @@ module.exports={
     "fetchSpec": "6.5.4"
   },
   "_requiredBy": [
-    "/",
-    "/browserify-sign",
-    "/create-ecdh",
-    "/ethr-did-resolver",
-    "/secp256k1"
+    "/did-siop",
+    "/did-siop/browserify-sign",
+    "/did-siop/create-ecdh",
+    "/did-siop/ethr-did-resolver",
+    "/did-siop/secp256k1"
   ],
   "_resolved": "https://registry.npmjs.org/elliptic/-/elliptic-6.5.4.tgz",
   "_spec": "6.5.4",
-  "_where": "/Users/cosa/github/did-siop-lib",
+  "_where": "/Users/cosa/github/did-siop-rp-web-min",
   "author": {
     "name": "Fedor Indutny",
     "email": "fedor@indutny.com"
@@ -58818,6 +58818,8 @@ var Identity = /** @class */ (function () {
                         err_1 = _a.sent();
                         throw new Error(commons_1.ERRORS.DOCUMENT_RESOLUTION_ERROR);
                     case 3:
+                        result = result.didDocument;
+                        console.log(result);
                         if (result &&
                             //result.data.didDocument['@context'] === 'https://w3id.org/did/v1' &&
                             result.id == did &&
@@ -58856,7 +58858,7 @@ var Identity = /** @class */ (function () {
         if (!this.isResolved())
             throw new Error(commons_1.ERRORS.UNRESOLVED_DOCUMENT);
         if (this.keySet.length === 0) {
-            for (var _i = 0, _a = this.doc.authentication; _i < _a.length; _i++) {
+            for (var _i = 0, _a = this.doc.verificationMethod; _i < _a.length; _i++) {
                 var method = _a[_i];
                 console.log('Successful get authentication: ' + JSON.stringify(method));
                 if (method.id && method.type) {
@@ -60030,7 +60032,7 @@ var ECKey = /** @class */ (function (_super) {
      * @remarks This static method creates and returns an ECKey object which has only the public information
      */
     ECKey.fromPublicKey = function (keyInput) {
-        if ('key' in keyInput) {
+        if ('key' in keyInput && keyInput.format !== globals_1.KEY_FORMATS.JWK) {
             var key_buffer = Buffer.alloc(1);
             try {
                 switch (keyInput.format) {
@@ -60057,7 +60059,9 @@ var ECKey = /** @class */ (function (_super) {
             return new ECKey(keyInput.kid, globals_1.KTYS.EC, 'secp256k1', x, y, keyInput.use, keyInput.alg);
         }
         else {
-            return new ECKey(keyInput.kid, globals_1.KTYS.EC, keyInput.crv, keyInput.x, keyInput.y, keyInput.use, keyInput.alg);
+            var keyInfo = keyInput;
+            var key = JSON.parse(JSON.stringify(keyInfo.key));
+            return new ECKey(key.kid, globals_1.KTYS.EC, key.crv, key.x, key.y, key.use, key.alg);
         }
     };
     /**
@@ -60068,6 +60072,14 @@ var ECKey = /** @class */ (function (_super) {
      */
     ECKey.fromPrivateKey = function (keyInput) {
         if ('key' in keyInput) {
+            if (keyInput.format === globals_1.KEY_FORMATS.JWK) {
+                var keyInfo = keyInput;
+                var key = JSON.parse(keyInfo.key);
+                var ecKey_1 = new ECKey(key.kid, globals_1.KTYS.EC, key.crv, key.x, key.y, key.use, key.alg);
+                ecKey_1.private = true;
+                ecKey_1.d = key.d;
+                return ecKey_1;
+            }
             var key_buffer = Buffer.alloc(1);
             try {
                 switch (keyInput.format) {
@@ -61182,18 +61194,24 @@ var RP = /** @class */ (function () {
                     isPrivate: false
                 };
                 for (var key_format in globals_1.KEY_FORMATS) {
-                    var privateKeyInfo = {
-                        key: key,
-                        kid: didPublicKey.id,
-                        use: 'sig',
-                        kty: globals_1.KTYS[didPublicKey.kty],
-                        alg: globals_1.ALGORITHMS[didPublicKey.alg],
-                        format: globals_1.KEY_FORMATS[key_format],
-                        isPrivate: true
-                    };
+                    var privateKeyInfo = void 0;
                     var privateKey = void 0;
                     var publicKey = void 0;
                     var signer = void 0, verifier = void 0;
+                    if (globals_1.KEY_FORMATS[key_format] === globals_1.KEY_FORMATS.JWK) {
+                        privateKeyInfo = JSON.parse(key);
+                    }
+                    else {
+                        privateKeyInfo = {
+                            key: key,
+                            kid: didPublicKey.id,
+                            use: 'sig',
+                            kty: globals_1.KTYS[didPublicKey.kty],
+                            alg: globals_1.ALGORITHMS[didPublicKey.alg],
+                            format: globals_1.KEY_FORMATS[key_format],
+                            isPrivate: true
+                        };
+                    }
                     try {
                         switch (didPublicKey.kty) {
                             case globals_1.KTYS.RSA:

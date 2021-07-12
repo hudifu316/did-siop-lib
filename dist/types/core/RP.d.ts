@@ -1,7 +1,7 @@
 import { CheckParams } from './Response';
 import { JWTObject } from './JWT';
 import { DidDocument } from './Identity';
-import { KEY_FORMATS, ALGORITHMS } from './globals';
+import { ALGORITHMS, KEY_FORMATS } from './globals';
 import { SIOPErrorResponse } from './ErrorResponse';
 export declare const ERRORS: Readonly<{
     NO_SIGNING_INFO: string;
