@@ -464,7 +464,13 @@ export class ECKey extends Key{
      * @remarks This static method creates and returns an ECKey object which has only the public information
      */
     static fromPublicKey(keyInput: KeyInputs.ECPublicKeyInput): ECKey{
-        if('key' in keyInput && keyInput.format!==KEY_FORMATS.JWK){
+        if('key' in keyInput){
+            if(keyInput.format===KEY_FORMATS.JWK){
+                let keyInfo:KeyInputs.KeyInfo = keyInput as KeyInputs.KeyInfo;
+                let key = JSON.parse(JSON.stringify(keyInfo.key));
+                return new ECKey(key.kid, KTYS.EC, key.crv, key.x, key.y, key.use, key.alg);
+            }
+
             let key_buffer = Buffer.alloc(1);
             try {
                 switch (keyInput.format) {
@@ -485,9 +491,7 @@ export class ECKey extends Key{
             return new ECKey(keyInput.kid, KTYS.EC, 'secp256k1', x, y, keyInput.use, keyInput.alg);
         }
         else {
-            let keyInfo:KeyInputs.KeyInfo = keyInput as KeyInputs.KeyInfo;
-            let key = JSON.parse(JSON.stringify(keyInfo.key));
-            return new ECKey(key.kid, KTYS.EC, key.crv, key.x, key.y, key.use, key.alg);
+            return new ECKey(keyInput.kid, KTYS.EC, keyInput.crv, keyInput.x, keyInput.y, keyInput.use, keyInput.alg);
         }
     }
 
