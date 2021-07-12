@@ -37,8 +37,12 @@ export class Identity{
         catch(err){
             throw new Error(ERRORS.DOCUMENT_RESOLUTION_ERROR);
         }
-        result = result.didDocument;
-        console.log(result);
+
+        const regex = new RegExp('^did:ion');
+        if (regex.test(did)){
+            result = result.didDocument
+        }
+
         if(
             result &&
             //result.data.didDocument['@context'] === 'https://w3id.org/did/v1' &&
@@ -76,7 +80,14 @@ export class Identity{
         if(!extractor) extractor = uniExtractor;
         if(!this.isResolved()) throw new Error(ERRORS.UNRESOLVED_DOCUMENT);
         if(this.keySet.length === 0){
-            for (let method of this.doc.verificationMethod) {
+            let didMethod;
+            const regex = new RegExp('^did:ion');
+            if (regex.test(this.doc.id)){
+                didMethod = this.doc.verificationMethod;
+            } else {
+                didMethod = this.doc.authentication
+            }
+            for (let method of didMethod) {
                 console.log('Successful get authentication: '+ JSON.stringify(method))
                 if (method.id && method.type) {
                     try{
@@ -91,7 +102,7 @@ export class Identity{
                 if (method.publicKey) {
                     if(typeof method.publicKey === 'string'){
                         for(let pub of this.doc.publicKey){
-                            if (pub.publicKeyHex === method.publicKey || pub.id === this.doc.id + method.publicKey){
+                            if (pub.id === method.publicKey || pub.id === this.doc.id + method.publicKey){
                                 try{
                                     this.keySet.push(extractor.extract(pub));
                                 }
@@ -105,7 +116,7 @@ export class Identity{
                     else{
                         for (let key of method.publicKey) {
                             for(let pub of this.doc.publicKey){
-                                if (pub.publicKeyHex === key || pub.id === this.doc.id + key){
+                                if (pub.id === key || pub.id === this.doc.id + key){
                                     try{
                                         this.keySet.push(extractor.extract(pub));
                                     }

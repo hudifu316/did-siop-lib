@@ -65,7 +65,7 @@ var Identity = /** @class */ (function () {
      */
     Identity.prototype.resolve = function (did) {
         return __awaiter(this, void 0, void 0, function () {
-            var result, err_1;
+            var result, err_1, regex;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -78,8 +78,10 @@ var Identity = /** @class */ (function () {
                         err_1 = _a.sent();
                         throw new Error(commons_1.ERRORS.DOCUMENT_RESOLUTION_ERROR);
                     case 3:
-                        result = result.didDocument;
-                        console.log(result);
+                        regex = new RegExp('^did:ion');
+                        if (regex.test(did)) {
+                            result = result.didDocument;
+                        }
                         if (result &&
                             //result.data.didDocument['@context'] === 'https://w3id.org/did/v1' &&
                             result.id == did &&
@@ -118,8 +120,16 @@ var Identity = /** @class */ (function () {
         if (!this.isResolved())
             throw new Error(commons_1.ERRORS.UNRESOLVED_DOCUMENT);
         if (this.keySet.length === 0) {
-            for (var _i = 0, _a = this.doc.verificationMethod; _i < _a.length; _i++) {
-                var method = _a[_i];
+            var didMethod = void 0;
+            var regex = new RegExp('^did:ion');
+            if (regex.test(this.doc.id)) {
+                didMethod = this.doc.verificationMethod;
+            }
+            else {
+                didMethod = this.doc.authentication;
+            }
+            for (var _i = 0, didMethod_1 = didMethod; _i < didMethod_1.length; _i++) {
+                var method = didMethod_1[_i];
                 console.log('Successful get authentication: ' + JSON.stringify(method));
                 if (method.id && method.type) {
                     try {
@@ -132,9 +142,9 @@ var Identity = /** @class */ (function () {
                 }
                 if (method.publicKey) {
                     if (typeof method.publicKey === 'string') {
-                        for (var _b = 0, _c = this.doc.publicKey; _b < _c.length; _b++) {
-                            var pub = _c[_b];
-                            if (pub.publicKeyHex === method.publicKey || pub.id === this.doc.id + method.publicKey) {
+                        for (var _a = 0, _b = this.doc.publicKey; _a < _b.length; _a++) {
+                            var pub = _b[_a];
+                            if (pub.id === method.publicKey || pub.id === this.doc.id + method.publicKey) {
                                 try {
                                     this.keySet.push(extractor.extract(pub));
                                 }
@@ -146,11 +156,11 @@ var Identity = /** @class */ (function () {
                         }
                     }
                     else {
-                        for (var _d = 0, _e = method.publicKey; _d < _e.length; _d++) {
-                            var key = _e[_d];
-                            for (var _f = 0, _g = this.doc.publicKey; _f < _g.length; _f++) {
-                                var pub = _g[_f];
-                                if (pub.publicKeyHex === key || pub.id === this.doc.id + key) {
+                        for (var _c = 0, _d = method.publicKey; _c < _d.length; _c++) {
+                            var key = _d[_c];
+                            for (var _e = 0, _f = this.doc.publicKey; _e < _f.length; _e++) {
+                                var pub = _f[_e];
+                                if (pub.id === key || pub.id === this.doc.id + key) {
                                     try {
                                         this.keySet.push(extractor.extract(pub));
                                     }
@@ -164,8 +174,8 @@ var Identity = /** @class */ (function () {
                     }
                 }
                 if (typeof method === 'string') {
-                    for (var _h = 0, _j = this.doc.publicKey; _h < _j.length; _h++) {
-                        var pub = _j[_h];
+                    for (var _g = 0, _h = this.doc.publicKey; _g < _h.length; _g++) {
+                        var pub = _h[_g];
                         if (pub.id === method) {
                             try {
                                 this.keySet.push(extractor.extract(pub));
