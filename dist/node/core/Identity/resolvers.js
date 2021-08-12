@@ -276,7 +276,10 @@ var UniversalDidResolver = /** @class */ (function (_super) {
             var returned;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, axios.get('https://dev.uniresolver.io/1.0/identifiers/' + did)];
+                    case 0: return [4 /*yield*/, axios.get('https://dev.uniresolver.io/1.0/identifiers/' + did, {
+                            headers: { 'accept': 'application/ld+json;profile="https://w3id.org/did-resolution";charset=utf-8' },
+                            data: {}
+                        })];
                     case 1:
                         returned = _a.sent();
                         return [2 /*return*/, returned.data];

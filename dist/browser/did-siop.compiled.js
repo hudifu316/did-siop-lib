@@ -5591,7 +5591,7 @@ doc.id==did&&doc.authentication&&doc.authentication.length>0){this.doc=doc;}else
  * @classdesc Resolver class which is based on the endpoint of https://dev.uniresolver.io/.
  * Can be used resolve Documents for any DID Method supported by the service.
  * @extends {DidResolver}
- */var UniversalDidResolver=/** @class */function(_super){__extends(UniversalDidResolver,_super);function UniversalDidResolver(){return _super!==null&&_super.apply(this,arguments)||this;}UniversalDidResolver.prototype.resolveDidDocumet=function(did){return __awaiter(this,void 0,void 0,function(){var returned;return __generator(this,function(_a){switch(_a.label){case 0:return[4/*yield*/,axios.get('https://dev.uniresolver.io/1.0/identifiers/'+did)];case 1:returned=_a.sent();return[2/*return*/,returned.data];}});});};/**
+ */var UniversalDidResolver=/** @class */function(_super){__extends(UniversalDidResolver,_super);function UniversalDidResolver(){return _super!==null&&_super.apply(this,arguments)||this;}UniversalDidResolver.prototype.resolveDidDocumet=function(did){return __awaiter(this,void 0,void 0,function(){var returned;return __generator(this,function(_a){switch(_a.label){case 0:return[4/*yield*/,axios.get('https://dev.uniresolver.io/1.0/identifiers/'+did,{headers:{'accept':'application/ld+json;profile="https://w3id.org/did-resolution";charset=utf-8'},data:{}})];case 1:returned=_a.sent();return[2/*return*/,returned.data];}});});};/**
      *
      * @param {string} did - DID to resolve the DID Document for.
      * @returns A promise which resolves to a {DidDocument}
