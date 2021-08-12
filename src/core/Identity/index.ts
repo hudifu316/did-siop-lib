@@ -37,11 +37,8 @@ export class Identity{
         catch(err){
             throw new Error(ERRORS.DOCUMENT_RESOLUTION_ERROR);
         }
-
-        const regex = new RegExp('^did:ion');
-        if (regex.test(did)){
-            result = result.didDocument
-        }
+        // accept: application/ld+json;profile="https://w3id.org/did-resolution
+        result = result.didDocument;
 
         if(
             result &&
@@ -85,7 +82,7 @@ export class Identity{
             if (regex.test(this.doc.id)){
                 didMethod = this.doc.verificationMethod;
             } else {
-                didMethod = this.doc.authentication
+                didMethod = this.doc.authentication;
             }
             for (let method of didMethod) {
                 console.log('Successful get authentication: '+ JSON.stringify(method))

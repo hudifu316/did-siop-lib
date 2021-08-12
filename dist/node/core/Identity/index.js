@@ -65,7 +65,7 @@ var Identity = /** @class */ (function () {
      */
     Identity.prototype.resolve = function (did) {
         return __awaiter(this, void 0, void 0, function () {
-            var result, err_1, regex;
+            var result, err_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -78,10 +78,8 @@ var Identity = /** @class */ (function () {
                         err_1 = _a.sent();
                         throw new Error(commons_1.ERRORS.DOCUMENT_RESOLUTION_ERROR);
                     case 3:
-                        regex = new RegExp('^did:ion');
-                        if (regex.test(did)) {
-                            result = result.didDocument;
-                        }
+                        // accept: application/ld+json;profile="https://w3id.org/did-resolution
+                        result = result.didDocument;
                         if (result &&
                             //result.data.didDocument['@context'] === 'https://w3id.org/did/v1' &&
                             result.id == did &&

@@ -5476,7 +5476,8 @@ var interaction_required={err:new Error('interaction_required'),response:{error:
      * @param {string} did - A Decentralized Identity to resolve
      * @returns A promise which resolves to the id field of the related Decentralized Idenity Document (did-doc)
      * @remarks The combinedResolver is used to resolve did-doc.
-     */Identity.prototype.resolve=function(did){return __awaiter(this,void 0,void 0,function(){var result,err_1,regex;return __generator(this,function(_a){switch(_a.label){case 0:_a.trys.push([0,2,,3]);return[4/*yield*/,resolvers_1.combinedDidResolver.resolve(did)];case 1:result=_a.sent();return[3/*break*/,3];case 2:err_1=_a.sent();throw new Error(commons_1.ERRORS.DOCUMENT_RESOLUTION_ERROR);case 3:regex=new RegExp('^did:ion');if(regex.test(did)){result=result.didDocument;}if(result&&//result.data.didDocument['@context'] === 'https://w3id.org/did/v1' &&
+     */Identity.prototype.resolve=function(did){return __awaiter(this,void 0,void 0,function(){var result,err_1;return __generator(this,function(_a){switch(_a.label){case 0:_a.trys.push([0,2,,3]);return[4/*yield*/,resolvers_1.combinedDidResolver.resolve(did)];case 1:result=_a.sent();return[3/*break*/,3];case 2:err_1=_a.sent();throw new Error(commons_1.ERRORS.DOCUMENT_RESOLUTION_ERROR);case 3:// accept: application/ld+json;profile="https://w3id.org/did-resolution
+result=result.didDocument;if(result&&//result.data.didDocument['@context'] === 'https://w3id.org/did/v1' &&
 result.id==did&&result.authentication&&result.authentication.length>0){this.doc=result;this.keySet=[];return[2/*return*/,this.doc.id];}throw new Error(commons_1.ERRORS.INVALID_DID_ERROR);}});});};/**
      * @returns true/false to indicate whether the Identity has a resolved did-doc or not
      */Identity.prototype.isResolved=function(){return this.doc.id!=='';};/**
